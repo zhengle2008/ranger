@@ -1,6 +1,7 @@
 
 ## Builds R package. Updates version and date first.
-library(Rcpp)
+library(Rcpp11)
+library(attributes)
 library(roxygen2)
 library(devtools)
 library(testthat)

@@ -17,10 +17,10 @@
  Written by:
 
  Marvin N. Wright
- Institut für Medizinische Biometrie und Statistik
- Universität zu Lübeck
+ Institut fuer Medizinische Biometrie und Statistik
+ Universitaet zu Luebeck
  Ratzeburger Allee 160
- 23562 Lübeck
+ 23562 Luebeck
 
  http://www.imbs-luebeck.de
  wright@imbs.uni-luebeck.de
@@ -37,9 +37,7 @@
 #include "ForestSurvival.h"
 #include "ForestProbability.h"
 #include "Data.h"
-#include "DataChar.h"
 #include "DataDouble.h"
-#include "DataFloat.h"
 
 // [[Rcpp::export]]
 Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
@@ -69,7 +67,7 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
 
     std::ostream* verbose_out;
     if (verbose) {
-      verbose_out = &Rcpp::Rcout;
+      verbose_out = &std::cout;
     } else {
       verbose_out = new std::stringstream;
     }
@@ -153,59 +151,114 @@ Rcpp::List rangerCpp(uint treetype, std::string dependent_variable_name,
     }
 
     // Return output
-    result.push_back(forest->getNumTrees(), "num.trees");
-    result.push_back(forest->getNumIndependentVariables(), "num.independent.variables");
-    result.push_back(forest->getPredictions(), "predictions");
+    result = Rcpp::List::create(
+      Rcpp::_["num.trees"] = forest->getNumTrees(),
+      Rcpp::_["num.independent.variables"] = forest->getNumIndependentVariables(),
+      Rcpp::_["predictions"] = forest->getPredictions()
+    );
+    
+//     result.push_back(forest->getNumTrees(), "num.trees");
+//     result.push_back(forest->getNumIndependentVariables(), "num.independent.variables");
+//     result.push_back(forest->getPredictions(), "predictions");
     if (treetype == TREE_SURVIVAL) {
       ForestSurvival* temp = (ForestSurvival*) forest;
-      result.push_back(temp->getUniqueTimepoints(), "unique.death.times");
+      
+      Rcpp::List l = Rcpp::List::create(
+        Rcpp::_["unique.death.times"] = temp->getUniqueTimepoints()
+      );
+      result=Rcpp::Language("c",result,l).eval();
+      // result.push_back(temp->getUniqueTimepoints(), "unique.death.times");
     }
     if (!verbose) {
       std::stringstream temp;
       temp << verbose_out->rdbuf();
-      result.push_back(temp.str(), "log");
+      
+      Rcpp::List l = Rcpp::List::create(
+        Rcpp::_["log"] = temp.str()
+      );
+      result=Rcpp::Language("c",result,l).eval();
+      // result.push_back(temp.str(), "log");
     }
     if (!prediction_mode) {
-      result.push_back(forest->getMtry(), "mtry");
-      result.push_back(forest->getMinNodeSize(), "min.node.size");
-      result.push_back(forest->getVariableImportance(), "variable.importance");
-      result.push_back(forest->getOverallPredictionError(), "prediction.error");
+      Rcpp::List l = Rcpp::List::create(
+        Rcpp::_["mtry"] = forest->getMtry(),
+        Rcpp::_["min.node.size"] = forest->getMinNodeSize(),
+        Rcpp::_["variable.importance"] = forest->getVariableImportance(),
+        Rcpp::_["prediction.error"] = forest->getOverallPredictionError()
+      );
+      result=Rcpp::Language("c",result,l).eval();
+      
+//       result.push_back(forest->getMtry(), "mtry");
+//       result.push_back(forest->getMinNodeSize(), "min.node.size");
+//       result.push_back(forest->getVariableImportance(), "variable.importance");
+//       result.push_back(forest->getOverallPredictionError(), "prediction.error");
     }
 
     // Save forest if needed
     if (write_forest) {
-      Rcpp::List forest_object;
-      forest_object.push_back(forest->getDependentVarId(), "dependent.varID");
-      forest_object.push_back(forest->getNumTrees(), "num.trees");
-      forest_object.push_back(forest->getChildNodeIDs(), "child.nodeIDs");
-      forest_object.push_back(forest->getSplitVarIDs(), "split.varIDs");
-      forest_object.push_back(forest->getSplitValues(), "split.values");
-      forest_object.push_back(forest->getIsOrderedVariable(), "is.ordered");
+      Rcpp::List forest_object = Rcpp::List::create(
+        Rcpp::_["dependent.varID"] = forest->getDependentVarId(),
+        Rcpp::_["num.trees"] = forest->getNumTrees(),
+        Rcpp::_["child.nodeIDs"] = forest->getChildNodeIDs(),
+        Rcpp::_["split.varIDs"] = forest->getSplitVarIDs(),
+        Rcpp::_["split.values"] = forest->getSplitValues(),
+        Rcpp::_["is.ordered"] = forest->getIsOrderedVariable()
+      );
+      
+//       Rcpp::List forest_object;
+//       forest_object.push_back(forest->getDependentVarId(), "dependent.varID");
+//       forest_object.push_back(forest->getNumTrees(), "num.trees");
+//       forest_object.push_back(forest->getChildNodeIDs(), "child.nodeIDs");
+//       forest_object.push_back(forest->getSplitVarIDs(), "split.varIDs");
+//       forest_object.push_back(forest->getSplitValues(), "split.values");
+//       forest_object.push_back(forest->getIsOrderedVariable(), "is.ordered");
 
       if (treetype == TREE_CLASSIFICATION) {
         ForestClassification* temp = (ForestClassification*) forest;
-        forest_object.push_back(temp->getClassValues(), "class.values");
+        
+        Rcpp::List l = Rcpp::List::create(
+          Rcpp::_["class.values"] = temp->getClassValues()
+        );
+        forest_object=Rcpp::Language("c",forest_object,l).eval();
+        // forest_object.push_back(temp->getClassValues(), "class.values");
       } else if (treetype == TREE_PROBABILITY) {
         ForestProbability* temp = (ForestProbability*) forest;
-        forest_object.push_back(temp->getClassValues(), "class.values");
-        forest_object.push_back(temp->getTerminalClassCounts(), "terminal.class.counts");
+        
+        Rcpp::List l = Rcpp::List::create(
+          Rcpp::_["class.values"] = temp->getClassValues(), 
+          Rcpp::_["terminal.class.counts"] = temp->getTerminalClassCounts()
+        );
+        forest_object=Rcpp::Language("c",forest_object,l).eval();
+//         forest_object.push_back(temp->getClassValues(), "class.values");
+//         forest_object.push_back(temp->getTerminalClassCounts(), "terminal.class.counts");
       } else if (treetype == TREE_SURVIVAL) {
         ForestSurvival* temp = (ForestSurvival*) forest;
-        forest_object.push_back(temp->getStatusVarId(), "status.varID");
-        forest_object.push_back(temp->getChf(), "chf");
-        forest_object.push_back(temp->getUniqueTimepoints(), "unique.death.times");
+        
+        Rcpp::List l = Rcpp::List::create(
+          Rcpp::_["status.varID"] = temp->getStatusVarId(), 
+          Rcpp::_["chf"] = temp->getChf(),
+          Rcpp::_["unique.death.times"] = temp->getUniqueTimepoints()
+        );
+        forest_object=Rcpp::Language("c",forest_object,l).eval();
+//         forest_object.push_back(temp->getStatusVarId(), "status.varID");
+//         forest_object.push_back(temp->getChf(), "chf");
+//         forest_object.push_back(temp->getUniqueTimepoints(), "unique.death.times");
       }
-      result.push_back(forest_object, "forest");
+      Rcpp::List l = Rcpp::List::create(
+        Rcpp::_["forest"] = forest_object
+      );
+      result=Rcpp::Language("c",result,l).eval();
+      // result.push_back(forest_object, "forest");
     }
 
     delete forest;
     delete data;
   } catch (std::exception& e) {
-    Rcpp::Rcerr << "Error: " << e.what() << " Ranger will EXIT now." << std::endl;
+    std::cerr << "Error: " << e.what() << " Ranger will EXIT now." << std::endl;
     delete forest;
     delete data;
     return result;
   }
-
+  
   return result;
 }
