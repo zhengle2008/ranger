@@ -148,7 +148,6 @@
 ##'   Malley, J. D., Kruppa, J., Dasgupta, A., Malley, K. G., & Ziegler, A. (2012). Probability machines: consistent probability estimation using nonparametric learning machines. Methods Inf Med, 51(1), 74.
 ##' @seealso \code{\link{predict.ranger}}
 ##' @useDynLib ranger
-##' @importFrom Rcpp evalCpp
 ##' @import stats 
 ##' @import utils
 ##' @export
