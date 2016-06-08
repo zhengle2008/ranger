@@ -9,6 +9,8 @@ addons:
     packages:
     - gcc-5
     - g++-5
+    
+env: COMPILER_NAME=gcc CXX=g++-5 CC=gcc-5
 
 before_install:
   - cd ./ranger-r-package/ranger
