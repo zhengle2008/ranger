@@ -220,7 +220,7 @@ void ForestProbability::writeConfusionFile() {
   outfile << "Overall OOB prediction error (MSE): " << overall_prediction_error << std::endl;
 
   outfile.close();
-  *verbose_out << "Saved prediction error to file " << filename << "." << std::endl;
+  *verbose_out << "Saved prediction error to file " << filename.c_str() << "." << std::endl;
 }
 
 void ForestProbability::writePredictionFile() {
@@ -262,7 +262,7 @@ void ForestProbability::writePredictionFile() {
     }
   }
 
-  *verbose_out << "Saved predictions to file " << filename << "." << std::endl;
+  *verbose_out << "Saved predictions to file " << filename.c_str() << "." << std::endl;
 }
 
 void ForestProbability::saveToFileInternal(std::ofstream& outfile) {

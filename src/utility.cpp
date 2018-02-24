@@ -162,7 +162,7 @@ void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64
   std::vector<bool> temp;
   temp.resize(indices.size(), false);
 
-  std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
+  std::discrete_distribution<> weighted_dist(std::initializer_list<double>(weights.data(), weights.data()+weights.size()));
   for (size_t i = 0; i < num_samples; ++i) {
     size_t draw;
     do {
@@ -182,7 +182,7 @@ void drawWithoutReplacementWeighted(std::vector<size_t>& result, std::mt19937_64
   std::vector<bool> temp;
   temp.resize(max_index + 1, false);
 
-  std::discrete_distribution<> weighted_dist(weights.begin(), weights.end());
+  std::discrete_distribution<> weighted_dist(std::initializer_list<double>(weights.data(), weights.data() + weights.size()));
   for (size_t i = 0; i < num_samples; ++i) {
     size_t draw;
     do {
